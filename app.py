@@ -38,123 +38,238 @@ def init_db():
 
 init_db()
 
-# ---------------- HTML ----------------
+# ---------------- INSTAGRAM STYLE BASE HTML ----------------
 
 BASE_HTML = """
+
 <!DOCTYPE html>
 <html>
 <head>
+
 <title>Simol Jr</title>
+
 <style>
+
 body{
-font-family:Arial;
+font-family: Arial;
 background:#fafafa;
-margin:40px;
+margin:0;
 }
 
-img{
-border-radius:10px;
+.navbar{
+background:white;
+border-bottom:1px solid #ddd;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.logo{
+font-size:24px;
+font-weight:bold;
+color:#262626;
+}
+
+.container{
+max-width:700px;
+margin:auto;
+padding:20px;
+}
+
+.card{
+background:white;
+border:1px solid #ddd;
+border-radius:8px;
+margin-bottom:25px;
+}
+
+.card-header{
+display:flex;
+align-items:center;
+padding:10px;
+}
+
+.profile-pic{
+width:35px;
+height:35px;
+border-radius:50%;
+margin-right:10px;
+object-fit:cover;
+}
+
+.card img{
+width:100%;
+}
+
+.card-actions{
+padding:10px;
+font-size:14px;
 }
 
 button{
-padding:8px 15px;
 background:#3897f0;
-border:none;
 color:white;
+border:none;
+padding:8px 15px;
 border-radius:5px;
+cursor:pointer;
+}
+
+input{
+padding:8px;
+width:100%;
+margin-bottom:10px;
+border:1px solid #ccc;
+border-radius:5px;
+}
+
+form{
+margin-bottom:20px;
 }
 
 a{
 text-decoration:none;
 color:#3897f0;
 }
+
+.center{
+max-width:350px;
+margin:auto;
+margin-top:100px;
+background:white;
+padding:30px;
+border:1px solid #ddd;
+}
+
 </style>
+
 </head>
 
 <body>
 
-<h2>Simol Jr – Private Photo Website</h2>
-<hr>
+<div class="navbar">
+
+<div class="logo">Simol Jr</div>
+
+<div>
+
+{% if session.get('user') %}
+<a href="/">Home</a> |
+<a href="/profile">Profile</a> |
+<a href="/logout">Logout</a>
+{% endif %}
+
+</div>
+
+</div>
+
+<div class="container">
 
 {{ body|safe }}
 
+</div>
+
 </body>
 </html>
+
 """
 
+# ---------------- LOGIN ----------------
+
 LOGIN_HTML = """
-<h3>Login</h3>
+
+<div class="center">
+
+<h2>Simol Jr</h2>
 
 <form method="POST">
 
-Username<br>
-<input name="username" required><br><br>
+<input name="username" placeholder="Username" required>
 
-Password<br>
-<input type="password" name="password" required><br><br>
+<input type="password" name="password" placeholder="Password" required>
 
 <button>Login</button>
 
 </form>
 
-<p>New user? <a href="/register">Register here</a></p>
+<p>New user? <a href="/register">Register</a></p>
 
 <p style="color:red">{{ error }}</p>
+
+</div>
+
 """
 
+# ---------------- REGISTER ----------------
+
 REGISTER_HTML = """
-<h3>Register</h3>
+
+<div class="center">
+
+<h2>Create Account</h2>
 
 <form method="POST">
 
-Username<br>
-<input name="username" required><br><br>
+<input name="username" placeholder="Username" required>
 
-Password<br>
-<input type="password" name="password" required><br><br>
+<input type="password" name="password" placeholder="Password" required>
 
-<button>Create account</button>
+<button>Register</button>
 
 </form>
 
-<p><a href="/login">Back to login</a></p>
+<p><a href="/login">Back to Login</a></p>
 
 <p style="color:red">{{ error }}</p>
+
+</div>
+
 """
 
+# ---------------- HOME FEED ----------------
+
 HOME_HTML = """
-<p>
-Welcome <b>{{ user }}</b> |
-<a href="/profile">Profile</a> |
-<a href="/logout">Logout</a>
-</p>
+
+<h3>Welcome {{ user }}</h3>
 
 {% if pic %}
-<img src="/profile_image/{{ pic }}" width="100"><br><br>
+<img src="/profile_image/{{ pic }}" class="profile-pic">
 {% endif %}
-
-<form method="POST" enctype="multipart/form-data">
-<input type="file" name="photo" required>
-<button>Upload photo</button>
-</form>
 
 <hr>
 
-<h3>Your Photos</h3>
+<form method="POST" enctype="multipart/form-data">
+
+<input type="file" name="photo" required>
+
+<button>Upload Photo</button>
+
+</form>
 
 {% for img in images %}
 
-<div style="display:inline-block;margin:15px;text-align:center">
+<div class="card">
 
-<a href="/view/{{ img }}">
-<img src="/image/{{ img }}" width="160">
-</a>
+<div class="card-header">
 
-<br><br>
+{% if pic %}
+<img src="/profile_image/{{ pic }}" class="profile-pic">
+{% endif %}
+
+<b>{{ user }}</b>
+
+</div>
+
+<img src="/image/{{ img }}">
+
+<div class="card-actions">
 
 <a href="/view/{{ img }}">View</a> |
 <a href="/download/{{ img }}">Download</a> |
 <a href="/delete/{{ img }}">Delete</a>
+
+</div>
 
 </div>
 
@@ -163,9 +278,13 @@ Welcome <b>{{ user }}</b> |
 <p>No photos uploaded yet.</p>
 
 {% endfor %}
+
 """
 
+# ---------------- PROFILE ----------------
+
 PROFILE_HTML = """
+
 <h3>Upload Profile Picture</h3>
 
 <form method="POST" enctype="multipart/form-data">
@@ -176,9 +295,8 @@ PROFILE_HTML = """
 
 </form>
 
-<br>
-
 <a href="/">Back</a>
+
 """
 
 def render_page(body, **ctx):
@@ -338,7 +456,7 @@ def view_image(filename):
 
 <h2>View Photo</h2>
 
-<img src='/image/{filename}' style='max-width:80%'>
+<img src='/image/{filename}' style='max-width:100%'>
 
 <br><br>
 
