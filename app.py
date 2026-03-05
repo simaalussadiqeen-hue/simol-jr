@@ -38,37 +38,43 @@ def init_db():
 
 init_db()
 
-# ---------------- INSTAGRAM STYLE BASE HTML ----------------
+# ---------------- COLORFUL UI ----------------
 
 BASE_HTML = """
 
 <!DOCTYPE html>
 <html>
 <head>
-
 <title>Simol Jr</title>
 
 <style>
 
 body{
-font-family: Arial;
-background:#fafafa;
+font-family:Arial;
 margin:0;
+background: linear-gradient(120deg,#fdf497,#fd5949,#d6249f,#285AEB);
+background-size:400% 400%;
+animation: gradient 12s ease infinite;
+}
+
+@keyframes gradient{
+0%{background-position:0% 50%}
+50%{background-position:100% 50%}
+100%{background-position:0% 50%}
 }
 
 .navbar{
-background:white;
-border-bottom:1px solid #ddd;
+background:linear-gradient(90deg,#ff512f,#dd2476);
 padding:15px;
 display:flex;
 justify-content:space-between;
 align-items:center;
+color:white;
 }
 
 .logo{
-font-size:24px;
+font-size:26px;
 font-weight:bold;
-color:#262626;
 }
 
 .container{
@@ -79,9 +85,10 @@ padding:20px;
 
 .card{
 background:white;
-border:1px solid #ddd;
-border-radius:8px;
+border-radius:12px;
+box-shadow:0 4px 12px rgba(0,0,0,0.2);
 margin-bottom:25px;
+overflow:hidden;
 }
 
 .card-header{
@@ -91,10 +98,11 @@ padding:10px;
 }
 
 .profile-pic{
-width:35px;
-height:35px;
+width:40px;
+height:40px;
 border-radius:50%;
 margin-right:10px;
+border:2px solid #ff4b7d;
 object-fit:cover;
 }
 
@@ -104,42 +112,39 @@ width:100%;
 
 .card-actions{
 padding:10px;
-font-size:14px;
 }
 
 button{
-background:#3897f0;
+background:linear-gradient(90deg,#ff512f,#dd2476);
 color:white;
 border:none;
-padding:8px 15px;
-border-radius:5px;
+padding:10px 18px;
+border-radius:8px;
 cursor:pointer;
 }
 
 input{
-padding:8px;
+padding:10px;
 width:100%;
-margin-bottom:10px;
+margin-bottom:12px;
+border-radius:6px;
 border:1px solid #ccc;
-border-radius:5px;
-}
-
-form{
-margin-bottom:20px;
-}
-
-a{
-text-decoration:none;
-color:#3897f0;
 }
 
 .center{
 max-width:350px;
 margin:auto;
-margin-top:100px;
+margin-top:120px;
 background:white;
 padding:30px;
-border:1px solid #ddd;
+border-radius:12px;
+box-shadow:0 4px 15px rgba(0,0,0,0.2);
+}
+
+a{
+text-decoration:none;
+color:#dd2476;
+font-weight:bold;
 }
 
 </style>
@@ -172,7 +177,6 @@ border:1px solid #ddd;
 
 </body>
 </html>
-
 """
 
 # ---------------- LOGIN ----------------
@@ -181,7 +185,7 @@ LOGIN_HTML = """
 
 <div class="center">
 
-<h2>Simol Jr</h2>
+<h2>Login</h2>
 
 <form method="POST">
 
@@ -198,7 +202,6 @@ LOGIN_HTML = """
 <p style="color:red">{{ error }}</p>
 
 </div>
-
 """
 
 # ---------------- REGISTER ----------------
@@ -219,15 +222,14 @@ REGISTER_HTML = """
 
 </form>
 
-<p><a href="/login">Back to Login</a></p>
+<p><a href="/login">Back to login</a></p>
 
 <p style="color:red">{{ error }}</p>
 
 </div>
-
 """
 
-# ---------------- HOME FEED ----------------
+# ---------------- HOME ----------------
 
 HOME_HTML = """
 
@@ -278,7 +280,6 @@ HOME_HTML = """
 <p>No photos uploaded yet.</p>
 
 {% endfor %}
-
 """
 
 # ---------------- PROFILE ----------------
@@ -296,7 +297,6 @@ PROFILE_HTML = """
 </form>
 
 <a href="/">Back</a>
-
 """
 
 def render_page(body, **ctx):
@@ -311,38 +311,38 @@ def home():
     if "user" not in session:
         return redirect("/login")
 
-    user = session["user"]
+    user=session["user"]
 
-    user_folder = os.path.join(UPLOAD_ROOT, user)
-    os.makedirs(user_folder, exist_ok=True)
+    user_folder=os.path.join(UPLOAD_ROOT,user)
+    os.makedirs(user_folder,exist_ok=True)
 
-    if request.method == "POST":
+    if request.method=="POST":
 
-        f = request.files.get("photo")
+        f=request.files.get("photo")
 
         if f and f.filename:
-            name = secure_filename(f.filename)
-            f.save(os.path.join(user_folder, name))
+            name=secure_filename(f.filename)
+            f.save(os.path.join(user_folder,name))
 
         return redirect("/")
 
-    con = get_db()
-    cur = con.cursor()
+    con=get_db()
+    cur=con.cursor()
 
     cur.execute("SELECT profile_pic FROM users WHERE username=?", (user,))
-    row = cur.fetchone()
+    row=cur.fetchone()
 
-    pic = row[0] if row else None
+    pic=row[0] if row else None
 
     con.close()
 
-    images = os.listdir(user_folder)
+    images=os.listdir(user_folder)
 
-    return render_page(HOME_HTML, images=images, user=user, pic=pic)
+    return render_page(HOME_HTML,images=images,user=user,pic=pic)
 
 # ---------------- LOGIN ----------------
 
-@app.route("/login", methods=["GET","POST"])
+@app.route("/login",methods=["GET","POST"])
 def login():
 
     error=""
@@ -375,7 +375,7 @@ def login():
 
 # ---------------- REGISTER ----------------
 
-@app.route("/register", methods=["GET","POST"])
+@app.route("/register",methods=["GET","POST"])
 def register():
 
     error=""
@@ -409,7 +409,7 @@ def register():
 
 # ---------------- PROFILE ----------------
 
-@app.route("/profile", methods=["GET","POST"])
+@app.route("/profile",methods=["GET","POST"])
 def profile():
 
     if "user" not in session:
@@ -477,11 +477,7 @@ def download_file(filename):
 
     user_folder=os.path.join(UPLOAD_ROOT,session["user"])
 
-    return send_from_directory(
-    user_folder,
-    filename,
-    as_attachment=True
-    )
+    return send_from_directory(user_folder,filename,as_attachment=True)
 
 # ---------------- IMAGE ----------------
 
